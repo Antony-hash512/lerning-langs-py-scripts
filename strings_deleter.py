@@ -53,26 +53,30 @@ def delete_lines(filename, line_numbers):
     return True
 
 
-def main():
-    # Проверяем количество аргументов
-    if len(sys.argv) < 3:
-        print("Использование: python strings_deleter.py <имя_файла> <номер_строки1> <номер_строки2> ...")
-        sys.exit(1)
+def main(args=None):
+    """Основная функция для обработки аргументов командной строки."""
+    if args is None:
+        args = sys.argv[1:]
     
-    filename = sys.argv[1]
-    line_numbers = sys.argv[2:]
+    # Проверяем количество аргументов
+    if len(args) < 2:
+        print("Использование: python strings_deleter.py <имя_файла> <номер_строки1> <номер_строки2> ...")
+        return 1
+    
+    filename = args[0]
+    line_numbers = args[1:]
     
     # Проверяем существование файла
     if not os.path.isfile(filename):
         print(f"Ошибка: файл '{filename}' не существует.")
-        sys.exit(1)
+        return 1
     
     # Проверяем, что все номера строк являются целыми числами
     try:
         [int(num) for num in line_numbers]
     except ValueError:
         print("Ошибка: номера строк должны быть целыми числами.")
-        sys.exit(1)
+        return 1
     
     # Создаем резервную копию
     backup_filename = create_backup(filename)
@@ -85,4 +89,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
