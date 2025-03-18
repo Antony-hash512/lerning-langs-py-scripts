@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Импортируем только нужные функции
 from strings_deleter import create_backup, delete_lines
+import argparse  # Добавляем импорт модуля argparse
 
 def find_duplicate_lines(filename):
     line_count = {}
@@ -29,6 +30,12 @@ def find_duplicate_lines(filename):
     return duplicates
 
 def main():
+    # Создаем парсер аргументов командной строки
+    parser = argparse.ArgumentParser(description='Проверка и удаление повторяющихся строк в файле')
+    parser.add_argument('--noedit', action='store_true', 
+                        help='Только показать дубликаты без предложения их удалить')
+    args = parser.parse_args()
+
     filename = 'newWords.txt'
     duplicates = find_duplicate_lines(filename)
 
@@ -37,24 +44,27 @@ def main():
         for line, nums in duplicates.items():
             num_str = ', '.join(map(str, nums))
             print(f"'{line}' на строках: {num_str}")
-        # спросить у пользователя, хочет ли он удалить эти строки
-        answer = input("Хотите удалить эти строки? (y/n): ")
-        if answer == 'y':
-            backup_filename = create_backup(filename)
-            # Для каждой группы дубликатов оставляем только первую строку
-            lines_to_delete = []
-            for line, line_numbers in duplicates.items():
-                # Оставляем первую строку, удаляем остальные
-                lines_to_delete.extend(line_numbers[1:])
-            
-            # Сортируем номера строк для удаления
-            lines_to_delete.sort()
-            
-            if lines_to_delete:
-                delete_lines(filename, lines_to_delete)
-                print(f"Удалены дубликаты. Оставлен один экземпляр каждого слова.")
-            else:
-                print("Нет строк для удаления.")
+        
+        # Проверяем, нужно ли предлагать удаление строк
+        if not args.noedit:
+            # спросить у пользователя, хочет ли он удалить эти строки
+            answer = input("Хотите удалить эти строки? (y/n): ")
+            if answer == 'y':
+                backup_filename = create_backup(filename)
+                # Для каждой группы дубликатов оставляем только первую строку
+                lines_to_delete = []
+                for line, line_numbers in duplicates.items():
+                    # Оставляем первую строку, удаляем остальные
+                    lines_to_delete.extend(line_numbers[1:])
+                
+                # Сортируем номера строк для удаления
+                lines_to_delete.sort()
+                
+                if lines_to_delete:
+                    delete_lines(filename, lines_to_delete)
+                    print(f"Удалены дубликаты. Оставлен один экземпляр каждого слова.")
+                else:
+                    print("Нет строк для удаления.")
     else:
         print("Повторяющиеся строки не найдены.")
 
